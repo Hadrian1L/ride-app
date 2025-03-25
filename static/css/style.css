@@ -1,0 +1,87 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .hero {
+    background: rgb(167, 24, 167);
+    color: white;
+    height: 30vh;
+    text-align: center;
+    padding-top: 100px;
+  }
+  
+  .button-container {
+    margin-top: 40px;
+  }
+  
+  .button-container button {
+    padding: 12px 24px;
+    margin: 10px;
+    font-size: 16px;
+    border: none;
+    background-color: white;
+    color: purple;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.3s ease;
+  }
+  
+  .button-container button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .scroll-hint {
+    margin-top: 60px;
+    font-size: 18px;
+    opacity: 0.8;
+  }
+  
+  .info {
+    background: white;
+    color: black;
+    padding: 60px;
+  }
+  
+  /* Overlay background */
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5;
+  }
+  
+  /* Modal box */
+  .modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    z-index: 10;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Modal hidden by default */
+  .hidden {
+    display: none;
+  }
+  
+  /* Modal inner content */
+  .modal-content input, .modal-content button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+  }
+  
+  .close {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+  }
+  
