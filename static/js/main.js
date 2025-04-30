@@ -15,17 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById("add-sub-event")?.addEventListener("click", () => {
-    const container = document.getElementById("sub-events-container");
-    const msg = document.getElementById("no-sub-events-msg");
-    if (msg) msg.remove();
-  
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "sub-event-input";
-    input.placeholder = "Sub-Event";
-    input.style.marginTop = "5px";
-    container.appendChild(input);
-  });
+    openModal("subEventModal");
+  });  
   
 
   document.getElementById("submit-create-event")?.addEventListener("click", async () => {
@@ -33,19 +24,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventName = document.querySelector("input[placeholder='Event Name']").value;
     const startDate = document.querySelector("input[placeholder='From (MM/DD/YYYY)']").value;
     const endDate = document.querySelector("input[placeholder='To (MM/DD/YYYY)']").value;
+    const description = document.getElementById("event-description").value;
 
     const subEvents = [...document.querySelectorAll(".sub-event-input")]
       .map(input => input.value.trim())
       .filter(v => v !== "");
+    if(!email || !eventName || !startDate || !endDate){
+      alert("Please fill in all required fields: Email, Event Name, Start Date, and End Date.");
+      return;
+    }
+    
 
     const payload = {
       email: email,
       event_name: eventName,
       start_date: startDate,
       end_date: endDate,
+      description: description,
       sub_events: subEvents
     };
 
+    if(startDate > endDate){
+        alert("Start date invalid");
+        return
+    }
+    
     const res = await fetch("/events/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -61,6 +64,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function confirmSubEvent() {
+  const name = document.getElementById("sub-event-input").value.trim();
+  if (!name) return;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "sub-event-input";
+  input.value = name;
+  input.readOnly = true;
+  input.style.marginTop = "5px";
+
+  document.getElementById("sub-events-container").appendChild(input);
+  document.getElementById("sub-event-input").value = "";
+  closeModal("subEventModal");
+}
+
 
 function openModal(id) {
   document.getElementById(id).style.display = "block";

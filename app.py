@@ -5,7 +5,7 @@ import os
 from opencage.geocoder import OpenCageGeocode
 
 from flask import Flask, request, render_template, jsonify
-from db import create_event, add_participant, get_participants, get_event_by_code
+from db import create_event, add_participant, get_participants, get_event_by_code, get_event, get_drivers
 load_dotenv()
 ORS_API_KEY = os.getenv("ORS_API_KEY")
 OPENCAGE_API_KEY = os.getenv("OPENCAGE_API_KEY")
@@ -24,7 +24,64 @@ def create_event_route():
 
 @app.route('/events/<int:event_id>/assign', methods=['POST'])
 def assign_rides_route(event_id):
-    NotImplemented
+
+    event = get_event(event_id)
+
+    drivers = get_drivers(event_id)
+    participants = get_participants(event_id)
+    riders = [p for p in participants if not p["can_drive"]]
+
+    vehicles = []
+    for i, driver in enumerate(drivers):
+        coord = get_coords(driver["location"])
+        vehicles.append({
+            "id": i,
+            "start": coord,
+            "capacity": [driver["seats"]],
+        })
+
+    pickups = []
+    for j, rider in enumerate(riders):
+        coord = get_coords(rider["location"])
+        pickups.append({
+            "id": j,
+            "location": coord,
+            "amount": [1]
+    })
+    client = openrouteservice.Client(key=ORS_API_KEY)
+    solution = client.optimization(
+        jobs=pickups,
+        vehicles=vehicles
+    )
+    
+    driver_map = {i: driver for i, driver in enumerate(drivers)}
+    rider_map = {j: rider for j, rider in enumerate(riders)}
+
+    assignments = []
+
+    for route in solution.get("routes", []):
+        driver_id = route["vehicle"]
+        driver = driver_map.get(driver_id)
+
+        rider_ids = [step["id"] for step in route["steps"] if step["type"] == "job"]
+        assigned_riders = [rider_map[rid] for rid in rider_ids]
+
+        assignments.append({
+            "driver": {
+                "name": driver["name"],
+                "location": driver["location"]
+            },
+            "riders": [
+                {
+                    "name": rider["name"],
+                    "location": rider["location"]
+                } for rider in assigned_riders
+            ]
+        })
+
+    return jsonify(assignments), 200
+
+
     
 @app.route('/events/join/<event_code>', methods=['POST'])
 def join_event(event_code):
@@ -65,12 +122,6 @@ def get_distance(origin, destination):
 
     distance = route['features'][0]['properties']['segments'][0]['distance']  # in meters
     return distance
-
-def generate_event_code():
-    NotImplemented
-
-def generate_host_code():
-    NotImplemented
 
 if __name__ == '__main__':
     app.run(debug=True)

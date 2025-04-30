@@ -1,4 +1,5 @@
 <!-- index.html -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -40,20 +41,23 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal('eventModal')">&times;</span>
       <h3>Create an Event</h3>
-      <input type="email" placeholder="Your Email">
-      <input type="text" placeholder="Event Name">
-      <input type="date" placeholder="From (MM/DD/YYYY)">
-      <input type="date" placeholder="To (MM/DD/YYYY)">
+      <input type="email" placeholder="Your Email" required>
+      <input type="text" placeholder="Event Name" required>
+      <input type="date" placeholder="From (MM/DD/YYYY)" required>
+      <input type="date" placeholder="To (MM/DD/YYYY)" required>
+  
+      <textarea id="event-description" placeholder="Event Description (optional)" rows="3" style="width: 100%; margin-bottom: 10px;"></textarea>
       
       <div id="sub-events-container">
         <p id="no-sub-events-msg" style="opacity: 0.6; font-size: 14px;">Click to add sub-events (optional)</p>
       </div>
-      
+  
       <button type="button" id="add-sub-event">+ Add Sub-Event</button>
-    
+  
       <button id="submit-create-event">Submit</button>
     </div>
   </div>
+  
 
   <div class="modal" id="joinModal">
     <div class="modal-content">
@@ -67,6 +71,19 @@
       <button>Join</button>
     </div>
   </div>
+
+  <div class="modal" id="subEventModal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('subEventModal')">&times;</span>
+      <h3>Add Sub-Event</h3>
+      <input type="text" id="sub-event-input" placeholder="Sub-Event Name">
+      <div class="modal-buttons" style="display: flex; gap: 10px; margin-top: 10px;">
+        <button onclick="confirmSubEvent()">Add Sub-Event</button>
+        <button onclick="closeModal('subEventModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
 
   <script>
     function openModal(id) {
