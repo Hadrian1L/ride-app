@@ -15,14 +15,12 @@
     <div class="banner-text">
       <div class="button-row">
         <button onclick="openModal('eventModal')">Create Event</button>
-        <button onclick="openModal('joinModal')">Enter Event ID</button>
+        <button onclick="openModal('chooseJoinStartModal')">Join/Start Event</button>
       </div>
       <button class="about-btn" onclick="document.getElementById('info').scrollIntoView()">About</button>
     </div>
   </div>
   
-    
-    <!-- Info Section -->
 <section id="info" class="info">
   <h2>About RideBuddy</h2>
   <p>
@@ -45,6 +43,7 @@
       <input type="text" placeholder="Event Name" required>
       <input type="date" placeholder="From (MM/DD/YYYY)" required>
       <input type="date" placeholder="To (MM/DD/YYYY)" required>
+      <input type="text" id="event-location" placeholder="Event Location" required> 
   
       <textarea id="event-description" placeholder="Event Description (optional)" rows="3" style="width: 100%; margin-bottom: 10px;"></textarea>
       
@@ -53,25 +52,81 @@
       </div>
   
       <button type="button" id="add-sub-event">+ Add Sub-Event</button>
-  
+
       <button id="submit-create-event">Submit</button>
     </div>
   </div>
   
 
-  <div class="modal" id="joinModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('joinModal')">&times;</span>
-      <h3>Join an Event</h3>
-      <input type="text" placeholder="Event ID">
-      <input type="text" placeholder="Your Name">
-      <input type="text" placeholder="Your Location">
-      <label><input type="checkbox"> I can drive</label>
-      <input type="number" placeholder="Available Seats (if driving)">
-      <button>Join</button>
+  <button onclick="openModal('chooseJoinStartModal')">Join/Start Event</button>
+    <div class="modal" id="chooseJoinStartModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('chooseJoinStartModal')">&times;</span>
+        <h3>What would you like to do?</h3>
+        <button onclick="switchModal('chooseJoinStartModal', 'joinModal')">Join Event</button>
+        <button onclick="switchModal('chooseJoinStartModal', 'startEventModal')">Start Event</button>
+      </div>
     </div>
-  </div>
+    <div class="modal" id="startEventModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('startEventModal')">&times;</span>
+        <h3>Start an Event</h3>
+        <input type="text" id="start-event-id" placeholder="Event ID">
+        <input type="text" id="start-host-code" placeholder="Host Code">
+        <input type="email" id="start-email" placeholder="Your Email">
+        <button id="submit-start-event">Start</button>
+      </div>
+    </div>
+  
+    <div class="modal" id="joinModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('joinModal')">&times;</span>
 
+        <div id="join-step1">
+          <h3>Join an Event</h3>
+          <input type="text" id="join-event-id" placeholder="Enter Event Code">
+          <small id="event-name-hint" style="display: block; margin: 10px 0; color: #666;"></small>
+          <button id="verify-event-code">Next</button>
+        </div>
+
+        <div id="join-step2" style="display: none;">
+          <h3 id="event-title"></h3>
+          
+          <div class="event-detail">
+            <strong>Location:</strong>
+            <span id="event-location-display"></span>
+          </div>
+          
+          <div class="event-detail">
+            <strong>Description:</strong>
+            <p id="event-description-display"></p>
+          </div>
+    
+          <div class="event-detail">
+            <strong>Sub-Events:</strong>
+            <div id="sub-events-checkboxes" style="margin: 10px 0;"></div>
+          </div>
+    
+          <hr style="margin: 15px 0;">
+    
+          <h4>Your Information</h4>
+          <input type="text" id="join-name" placeholder="Your Name" required>
+          <input type="text" id="join-location" placeholder="Your Location" required>
+    
+          <div style="margin: 15px 0;">
+            <label>
+              <input type="checkbox" id="can-drive">
+              I can drive others
+            </label>
+            <input type="number" id="available-seats" placeholder="Available seats" style="display: none; margin-top: 5px;">
+          </div>
+    
+          <button id="submit-join-event">Join Event</button>
+        </div>
+      </div>
+    </div>
+  
+    
   <div class="modal" id="subEventModal" style="display: none;">
     <div class="modal-content">
       <span class="close" onclick="closeModal('subEventModal')">&times;</span>
@@ -102,8 +157,17 @@
           modal.style.display = "none";
         }
       });
-      
     }
+    document.addEventListener('DOMContentLoaded', () => {
+      const driveCheckbox = document.getElementById('can-drive');
+      const seatsInput = document.getElementById('available-seats');
+
+      driveCheckbox?.addEventListener('change', () => {
+      seatsInput.style.display = driveCheckbox.checked ? 'block' : 'none';
+    });
+    });
+
+    
   </script>
 
 </body>

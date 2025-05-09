@@ -19,13 +19,14 @@ def home():
 @app.route('/events/create', methods=['POST'])
 def create_event_route():
     data = request.get_json()
-    event_code = create_event(data)
-    return jsonify({'event_code': event_code}), 201
+    event_code, host_code = create_event(data)
+    
+    return jsonify({'event_code': event_code, 'host_code': host_code}), 201
 
 @app.route('/events/<int:event_id>/assign', methods=['POST'])
 def assign_rides_route(event_id):
 
-    event = get_event(event_id)
+    event = get_event_by_code(event_id)
 
     drivers = get_drivers(event_id)
     participants = get_participants(event_id)
@@ -81,7 +82,32 @@ def assign_rides_route(event_id):
 
     return jsonify(assignments), 200
 
+def get_event_detail(event_code):
+    event = get_event_by_code(event_code)
+    if event == None:
+        return jsonify({'error': 'Event not found'}), 404
+    event_data = {
+        'event_name': event['event_name'],
+        'description': event.get('description', ''),
+        'location': event['location'],
+        'sub_events': event['sub_events']
+    }
 
+    return jsonify(event_data), 200
+
+@app.route('/events/details/<event_code>')
+def event_detail_route(event_code):
+    return get_event_detail(event_code)
+
+@app.route('/events/exists/<event_code>')
+def check_event_exists(event_code):
+    event = get_event_by_code(event_code)
+    if event:
+        return jsonify({
+            'exists': True,
+            'event_name': event['event_name']
+        }), 200
+    return jsonify({'exists': False}), 404
     
 @app.route('/events/join/<event_code>', methods=['POST'])
 def join_event(event_code):
@@ -120,7 +146,7 @@ def get_distance(origin, destination):
         format='geojson'
     )
 
-    distance = route['features'][0]['properties']['segments'][0]['distance']  # in meters
+    distance = route['features'][0]['properties']['segments'][0]['distance']
     return distance
 
 if __name__ == '__main__':

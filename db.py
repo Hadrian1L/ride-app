@@ -1,7 +1,13 @@
+import os
 import sqlite3
 import random
 import string
 import json
+from dotenv import load_dotenv
+import smtplib
+
+from email.mime.text import MIMEText
+load_dotenv()
 
 def add_participant(event_id, name, location, can_drive, seats, sub_event):
     conn = sqlite3.connect("ridebuddy.db")
@@ -29,18 +35,20 @@ def create_event(data):
     sub_events = json.dumps(data.get("sub_events", [])) 
     host_code = generate_host_code()
     description = data.get("description","")
+    location = data.get("location")
     event_code = generate_event_code()
 
     cur.execute("""
-        INSERT INTO events (email, event_name, start_date, end_date, sub_events, host_code, event_code)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (email, name, start_date, end_date, sub_events, host_code, event_code))
+        INSERT INTO events (email, event_name, start_date, end_date, location, sub_events, host_code, event_code)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (email, name, start_date, end_date, location, sub_events, host_code, event_code))
 
     conn.commit()
     event_id = cur.lastrowid
     conn.close()
 
-    return event_code
+    email_host(email, event_code, host_code)
+    return event_code, host_code
 
 def get_event_by_code(event_code):
     conn = sqlite3.connect("ridebuddy.db")
@@ -106,6 +114,30 @@ def get_event(event_id):
 
     event['sub_events'] = json.loads(event['sub_events']) if event['sub_events'] else []
     return event
+
+
+def email_host(to_email, event_code, host_code):
+
+    EMAIL = os.getenv("EMAIL")
+    APP_PASSWORD = os.getenv("APP_PASSWORD")
+    subject = "Your RideBuddy Event Info"
+    body = f"""Testing purposes,
+
+    Event Code: {event_code}
+    Host Code: {host_code}
+
+    Use these to manage and start your event.
+    """
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = EMAIL
+    msg["To"] = to_email
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(EMAIL, APP_PASSWORD)
+        server.sendmail(EMAIL, to_email, msg.as_string())
+    return True
     
 def validate_host(event_id, host_code):
     conn = sqlite3.connect("ridebuddy.db")
