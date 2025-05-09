@@ -109,7 +109,6 @@ body {
     background-color: #0056b3;
   }
   
-  /* Modal Styles */
   .modal {
     display: none;
     position: fixed;
@@ -167,4 +166,36 @@ html {
     color: black;
     padding: 60px;
   }
+
+.modal-content {
+  max-width: 500px;
+  transition: all 0.3s ease;
+}
+
+.event-detail {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+#sub-events-checkboxes {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+#join-step2 input[type="text"] {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 90vw !important;
+  }
+}
   
