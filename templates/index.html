@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RideBuddy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </head>
+  
+<body>
+
+  <div class="banner">
+    <div class="banner-text">
+      <div class="button-row">
+        <button onclick="openModal('eventModal')">Create Event</button>
+        <button onclick="openModal('chooseJoinStartModal')">Join/Start Event</button>
+      </div>
+      <button class="about-btn" onclick="document.getElementById('info').scrollIntoView()">About</button>
+    </div>
+  </div>
+  
+<section id="info" class="info">
+  <h2>About RideBuddy</h2>
+  <p>
+    RideBuddy is a carpool coordination tool designed for teams, clubs, and event organizers.
+    It simplifies driver-passenger grouping based on location and activity preferences.
+  </p>
+  <p>
+    Users can join events, indicate if they can drive, and the app will automatically assign the most optimal routes for drivers.
+  </p>
+  <img src="https://example.com/some-image.jpg" alt="example image" width="300" />
+</section>
+
+  <div class="modal" id="eventModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('eventModal')">&times;</span>
+      <h3>Create an Event</h3>
+      <input type="email" placeholder="Your Email" required>
+      <input type="text" placeholder="Event Name" autocomplete="off" required>
+      <input type="date" placeholder="From (MM/DD/YYYY)" required>
+      <input type="date" placeholder="To (MM/DD/YYYY)" required>
+      <input type="text" id="event-location" placeholder="Event Location" autocomplete="off" required> 
+  
+      <textarea id="event-description" placeholder="Event Description (optional)" rows="3" style="width: 100%; margin-bottom: 10px;"></textarea>
+      
+      <div id="sub-events-container">
+        <p id="no-sub-events-msg" style="opacity: 0.6; font-size: 14px;">Click to add sub-events (optional)</p>
+      </div>
+  
+      <button type="button" id="add-sub-event">+ Add Sub-Event</button>
+
+      <button id="submit-create-event">Submit</button>
+    </div>
+  </div>
+  
+  <button onclick="openModal('chooseJoinStartModal')">Join/Start Event</button>
+    <div class="modal" id="chooseJoinStartModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('chooseJoinStartModal')">&times;</span>
+        <h3>What would you like to do?</h3>
+        <button onclick="switchModal('chooseJoinStartModal', 'joinModal')">Join Event</button>
+        <button onclick="switchModal('chooseJoinStartModal', 'startEventModal')">Start Event</button>
+      </div>
+    </div>
+    <div class="modal" id="startEventModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('startEventModal')">&times;</span>
+        <h3>Start an Event</h3>
+        <input type="text" id="start-event-id" placeholder="Event ID" autocomplete="off">
+        <input type="text" id="start-host-code" placeholder="Host Code" autocomplete="off">
+        <input type="email" id="start-email" placeholder="Your Email" autocomplete="off">
+        <button id="submit-start-event">Start</button>
+      </div>
+    </div>
+  
+    <div class="modal" id="joinModal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('joinModal')">&times;</span>
+
+        <div id="join-step1">
+          <h3>Join an Event</h3>
+          <input type="text" id="join-event-id" placeholder="Enter Event Code" autocomplete="off">
+          <small id="event-name-hint" style="display: block; margin: 10px 0; color: #666;"></small>
+          <button id="verify-event-code">Next</button>
+        </div>
+
+        <div id="join-step2" style="display: none;">
+          <div class="modal-scrollable">
+          <h3 id="event-title"></h3>
+          
+          <div class="event-detail">
+            <strong>Location:</strong>
+            <span id="event-location-display"></span>
+          </div>
+          
+          <div class="event-detail">
+            <strong>Description:</strong>
+            <p id="event-description-display"></p>
+          </div>
+
+          <div class="event-detail">
+            <strong>Sub-Events:</strong>
+            <label>
+              
+            <input type="checkbox" id="chk-attend"> Attend sub-event
+            </label><br>
+
+            <label>
+              <input type="checkbox" id="chk-skip"> Leave after main event
+            </label><br>
+
+            <small style="color:#666;">Leave both boxes blank if you’re indifferent.</small>
+          </div>
+          <!--
+          <div class="event-detail">
+            <strong>Sub-Events:</strong>
+            <div id="sub-events-checkboxes" style="margin: 10px 0;"></div>
+          </div>
+          -->
+    
+          <hr style="margin: 15px 0;">
+    
+          <h4>Your Information</h4>
+          <input type="text" id="join-name" placeholder="Your Name" required>
+          <input type="text" id="join-location" placeholder="Your Location" required>
+    
+          <div style="margin: 15px 0;">
+            <label>
+              <input type="checkbox" id="can-drive">
+              I can drive others
+            </label>
+            <input type="number" id="available-seats" placeholder="Available seats" style="display: none; margin-top: 5px;">
+          </div>
+    
+          <button id="submit-join-event">Join Event</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  <div class="modal" id="subEventModal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('subEventModal')">&times;</span>
+      <h3>Add Sub-Event</h3>
+      <input type="text" id="sub-event-input" placeholder="Sub-Event Name">
+      <div class="modal-buttons" style="display: flex; gap: 10px; margin-top: 10px;">
+        <button onclick="confirmSubEvent()">Add Sub-Event</button>
+        <button onclick="closeModal('subEventModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!--  
+  <div class="modal" id="assignmentsModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('assignmentsModal')">&times;</span>
+      <h3>Ride Assignments</h3>
+      <div id="assignmentsDisplay" style="max-height:300px;overflow-y:auto;"></div>
+    </div>
+  </div>
+  -->
+  
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = "block";
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modals = ['eventModal', 'joinModal'];
+      modals.forEach(id => {
+        const modal = document.getElementById(id);
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const driveCheckbox = document.getElementById('can-drive');
+      const seatsInput = document.getElementById('available-seats');
+
+      driveCheckbox?.addEventListener('change', () => {
+      seatsInput.style.display = driveCheckbox.checked ? 'block' : 'none';
+    });
+    });
+
+    
+  </script>
+
+</body>
+</html>
